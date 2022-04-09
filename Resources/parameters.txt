@@ -1,4 +1,3 @@
-Intrinsic parameters values:
 fx = 775.22227	
 fy = 775.78896
 u0 = 694.47423
