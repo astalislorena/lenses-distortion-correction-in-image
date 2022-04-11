@@ -22,11 +22,12 @@ void distorsionElimination() {
 		Mat src;
 		src = imread(fname, IMREAD_GRAYSCALE);
 		Mat dst(src.rows, src.cols, IMREAD_GRAYSCALE, Scalar(0, 0, 0));
+		Mat dst2(src.rows, src.cols, IMREAD_GRAYSCALE, Scalar(0, 0, 0));
 		for (int u = 0; u < dst.rows; u++) {
 			for (int v = 0; v < dst.cols; v++) {
 				// Coords in image plan
-				float x = (u - u0) / fx;
-				float y = (v - v0) / fy;
+				float x = (u - v0) / fx;
+				float y = (v - u0) / fy;
 
 				// Coords in distors image
 				float r2 = pow(x, 2) + pow(y, 2);
@@ -36,8 +37,8 @@ void distorsionElimination() {
 				// Coords in pixels in distors image
 				float x_ = x + dx;
 				float y_ = y + dy;
-				float u_ = u0 + x_ * fx;
-				float v_ = v0 + y_ * fy;
+				float u_ = v0 + x_ * fx;
+				float v_ = u0 + y_ * fy;
 
 				// Interpolation
 				int u00 = (int)u_;
@@ -50,6 +51,7 @@ void distorsionElimination() {
 					float i01 = src.at<uchar>(u00, v01) * (float) (u01 - u_) + src.at<uchar>(u01, v01) * (float) (u_ - u00);
 					dst.at<uchar>(u, v) = i00 * (v01 - v_) + i01 * (v_ - v00);
 				}
+				dst2.at<uchar>(u, v) = src.at<uchar>(u_, v_);
 			}
 		}
 		Mat A = (cv::Mat_<double>(3, 3) << fx, 0.0, u0, 0.0, fy, v0, 0.0, 0.0, 1.0);
@@ -57,10 +59,12 @@ void distorsionElimination() {
 		Mat openCVDst;
 		undistort(src, openCVDst, A, distortionCoef);
 		imshow("Source image", src);
-		imshow("Destination image", dst);
+		imshow("Undistorted image with interpolation", dst);
+		imshow("Undistorted image without interpolation", dst2);
 		imshow("OpenCV undistorted image", openCVDst);
 		imwrite("open_cv_result.png", openCVDst);
-		imwrite("result.png", dst);
+		imwrite("result_with_interpolation.png", dst);
+		imwrite("result_withthout_interpolation.png", dst2);
 		waitKey();
 	}
 }
