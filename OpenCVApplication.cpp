@@ -6,6 +6,22 @@
 #include <iostream>
 #include <string.h>
 #include <fstream>
+#include <string>
+#include <regex>
+
+void getParams(std::vector<float>* paramaters) {
+	char filename[MAX_PATH] = {};
+	std::ifstream input("Resources/parameters.txt");
+	if (!input.is_open()) {
+		std::cout << "Could not open file Reources/parameters.txt\n";
+		return;
+	}
+	double number = 0;
+	while (input >> number) { 
+		paramaters->push_back(number);
+	
+	}
+}
 
 bool isInside(Mat src, int i, int j) {
 	if (i >= 0 && i < src.rows && j >= 0 && j < src.cols) {
@@ -14,8 +30,8 @@ bool isInside(Mat src, int i, int j) {
 	return false;
 }
 
-void distorsionElimination() {
-	float fx = 775.22227, fy = 775.78896, u0 = 694.47423, v0 = 510.97019, k1 = -0.22390, k2 = 0.05860, p1 = -0.00005, p2 = -0.00004;
+void distorsionElimination(std::vector<float> paramaters) {
+	float fx = paramaters.at(0), fy = paramaters.at(1), u0 = paramaters.at(2), v0 = paramaters.at(3), k1 = paramaters.at(4), k2 = paramaters.at(5), p1 = paramaters.at(6), p2 = paramaters.at(7);
 	char fname[MAX_PATH];
 	while (openFileDlg(fname))
 	{
@@ -73,6 +89,8 @@ int main()
 {
 	system("cls");
 	destroyAllWindows();
-	distorsionElimination();
+	std::vector<float> paramaters;
+	getParams(&paramaters);
+	distorsionElimination(paramaters);
 	return 0;
 }
